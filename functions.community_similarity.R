@@ -47,6 +47,7 @@ sparcc <- function(otu.table, size.thresh=1, pseudocount=10^-6, nblocks=400, use
 	#Load packages for parallel processing
 	require("foreach");
 	require("bigmemory");
+	require("biganalytics");
 	library("doMC", quietly=T);
 	#Register cluster
 	registerDoMC(cores=use.cores);
@@ -74,7 +75,6 @@ sparcc <- function(otu.table, size.thresh=1, pseudocount=10^-6, nblocks=400, use
 	my.split[1:(nblocks-1)] <- split(1:(size.split*(nblocks-1)), rep(1:(nblocks-1), each = size.split));
 	my.split[[nblocks]] <- (size.split*(nblocks-1)):n.otu;
 	dat.split <- mclapply(my.split, function(g) {o.t[g,]}, mc.cores=use.cores);
-	rm(o.t)
 	#Get combinations of splits
 	my.combs <- expand.grid(1:length(my.split), 1:length(my.split));
 	my.combs <- t(apply(my.combs, 1, sort));
@@ -124,7 +124,7 @@ sparcc <- function(otu.table, size.thresh=1, pseudocount=10^-6, nblocks=400, use
 	#Estimate pairwise correlations based on these values
 	cat(paste("Estimating correlations =>", Sys.time()), sep="\n");
 	mat.rho <- foreach(i = 1:n.otu, .combine='rbind', .multicombine=T) %dopar% {(omega[i]^2 + omega^2 - mat.T[i,]) / (2 * omega[i] * omega)}
-	rownames(mat.rho) <- rownames(ot);
+	rownames(mat.rho) <- rownames(o.t);
 	cat(paste("Done with correlation estimation; returning data matrix =>", Sys.time()), sep="\n");
 	########################
 	
