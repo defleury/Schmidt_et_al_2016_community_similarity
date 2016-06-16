@@ -9,6 +9,7 @@
 #sebastian.schmidt@imls.uzh.ch
 ################################################################################
 
+
 ################################################################################
 ################################################################################
 # Load Packages
@@ -28,6 +29,7 @@ library("phyloseq")
 ################################################################################
 ################################################################################
 
+
 ################################################################################
 ################################################################################
 #Preallocate global data structures
@@ -42,6 +44,7 @@ PARAM$p.adjust.method <- "hochberg";
 PARAM$use.cores <- 40;
 ################################################################################
 ################################################################################
+
 
 ################################################################################
 ################################################################################
@@ -72,6 +75,7 @@ for (s in colnames(curr.otu_rel_abd)) {
 curr.test.penetrance <- multiPhylosignal(curr.otu_penetrance, curr.tree);
 curr.test.rel_abd <- multiPhylosignal(curr.otu_rel_abd, curr.tree);
 ###################################
+
 
 ###################################
 #Cluster urogenital samples and plot heatmaps next to tree
@@ -146,6 +150,28 @@ dev.off();
 curr.phylo_plot <- ggtree(curr.tree, layout="circular");
 curr.plot <- gheatmap(p=curr.phylo_plot, data=as.data.frame(curr.otu_rel_abd), width=0.2, low="white", high="#3f007d");
 ggsave(curr.plot, width=40, height=40, filename=paste(PARAM$folder.output, "phylogenetic_signal.urogenital_subsites.otu_rel_abd.pdf", sep = ""), useDingbats=F);
+###################################
+
+
+###################################
+#Test factor "subject" for urogenital subsites
+###################################
+#Load community similarity data
+load(paste0(PARAM$folder.data, "hmp_samples.data.body_subsites.RData"));
+my.cs <- bs.cs[["Urogenital_tract"]];
+rm(bs.cs); gc();
+#Preallocate
+curr.aov_stat <- data.frame();
+for (t in 1:length(my.cs)) {
+	#Extract current distances
+	curr.dist <- as.dist(my.cs[[t]]$cs);
+	#Perform PERMANOVA
+	tmp.aov <- adonis(curr.dist ~ RSID, data=curr.sample.data, parallel=20);
+	#Pass results
+	curr.aov_stat <- rbind(curr.aov_stat, data.frame(Index=my.cs[[t]]$name, F=tmp.aov$aov.tab$F.Model[1], R2=tmp.aov$aov.tab$R2[1], p=tmp.aov$aov.tab["RSID", "Pr(>F)"]));
+}
+#Store results
+write.table(curr.aov_stat, file=paste0(PARAM$folder.output, "phylogenetic_signal.urogenital_subsites.PERMANOVA_for_RSID.txt"), sep="\t", quote=F, col.names=NA);
 ################################################################################
 ################################################################################
 
