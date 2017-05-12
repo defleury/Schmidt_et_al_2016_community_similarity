@@ -452,6 +452,54 @@ fasterUniFrac <- function(o.t, tree, distance="UniFrac_unweighted", blocksize=10
 ########################
 
 ########################
+#Fast & parallel calculation of cophenetic distances of tips on phylogenetic tree
+#=> based on the corresponding ape function
+fast.cophenetic.phylo <- function(x, nblocks=1000, use.cores=detectCores()) {
+  ########################
+  cat(paste("Cophenetic distance preallocation and data preparation steps =>", Sys.time()), sep="\n");
+  #Get tree in "postorder" order
+  x = reorder.phylo(x, order="postorder");
+  tip.order <- order(x$tip.label);
+  #Get "tip ages", or horizontal position of edges in re-ordered phylo object
+  node.ages = ape_node_depth_edge_length(Ntip = Ntip(x), Nnode = x$Nnode, edge = x$edge, Nedge = nrow(x$edge)[1], edge.length = x$edge.length);
+  #Get all (unique) combinations of tip.labels
+  my.combs <- t(combnPrim(tip.order, 2));
+  #Split combinations into processable chunks
+  size.split <- floor(nrow(my.combs) / nblocks);
+  if (size.split < 1) {size.split <- 1}
+  my.split <- list(); length(my.split) <- nblocks;
+  my.split[1:(nblocks-1)] <- split(1:(size.split*(nblocks-1)), rep(1:(nblocks-1), each = size.split));
+  my.split[[nblocks]] <- ((size.split*(nblocks-1))+1):nrow(my.combs);
+  cat(paste("Done with preallocation and data preparation steps =>", Sys.time()), sep="\n");
+  ########################
+  
+  ########################
+  cat(paste("Calculate node paths to root for all tips =>", Sys.time()), sep="\n");
+  #Get node paths to root for all tips
+  my.node_paths <- mclapply(seq(1, Ntip(x)), function (tip) {nodepath(x, from=tip, to=my.root)}, mc.cores=use.cores);
+  #Loop through all pairs of tips (in parallel) and calculate pairwise distance
+  #=> d.cophenetic = (d[i, root] + d[j, root]) - 2 * d[mrca.ij, root]
+  cat(paste("Calculate distances between all pairs of tips =>", Sys.time()), sep="\n");
+  split.sums <- mclapply(my.split, function(g) {node.ages[my.combs[g,1]]+node.ages[my.combs[g,2]]}, mc.cores=use.cores);
+  split.mrca <- mcmapply(function(a,b) {max(intersect(my.node_paths[[a]], my.node_paths[[b]]))}, my.combs[,1], my.combs[,2], mc.cores=use.cores);
+  dist.vec <- unlist(split.sums) - 2*node.ages[split.mrca];
+  cat(paste("Done =>", Sys.time()), sep="\n");
+  ########################
+  
+  ########################
+  #Coerce into matrix
+  cat(paste("Coerce into matrix =>", Sys.time()), sep="\n");
+  mat.out <- matrix(nrow=Ntip(x), ncol=Ntip(x)); diag(mat.out) <- 0; rownames(mat.out) <- colnames(mat.out) <- x$tip.label[tip.order];
+  mat.out[upper.tri(mat.out)] <- dist.vec;
+  mat.out[lower.tri(mat.out)] <- t(mat.out)[lower.tri(mat.out)];
+  cat(paste("Done. Returning =>", Sys.time()), sep="\n");
+  ########################
+  #Return
+  mat.out
+}
+########################
+
+########################
 #Interaction-adjusted indices of community similarity
 #=> formulated as distances/dissimilarities
 #=> calculated in parallel
