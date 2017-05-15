@@ -206,6 +206,7 @@ community.similarity.par <- function(o.t, distance="jaccard", use.cores=detectCo
 	#Load packages for parallel processing
 	require("foreach");
 	require("bigmemory");
+  require("plyr");
 	library("doMC", quietly=T);
 	#Register cluster
 	registerDoMC(cores=use.cores);
@@ -215,7 +216,8 @@ community.similarity.par <- function(o.t, distance="jaccard", use.cores=detectCo
 	samples <- colnames(o.t);
 	#Turn OTU table into list format
 	ot.occ.list <- apply((o.t > 0), 2, which);
-	ot.count.list <- mclapply(seq(1,length(ot.occ.list)), function(i) {o.t[ot.occ.list[[i]],i]}, mc.cores=use.cores);
+	#ot.count.list <- mclapply(seq(1,length(ot.occ.list)), function(i) {o.t[ot.occ.list[[i]],i]}, mc.cores=use.cores);
+	ot.count.list <- alply(o.t, .margins=1, .fun=function(o.vec) {o.vec[o.vec > 0]}, .parallel=T)
 	names(ot.occ.list) <- names(ot.count.list) <- samples;
 	########################
 	
