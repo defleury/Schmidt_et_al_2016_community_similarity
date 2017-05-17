@@ -188,7 +188,7 @@ if ("SparCC" == "SparCC") {
 	remove.otus <- rowSums(ot) < size.thresh; keep.otus <- ! remove.otus;
 	#o.t <- otu.table[1:1000, ] + pseudocount;
 	o.t <- ot[! remove.otus, ] + pseudocount;
-	otus <- rownames(ot);
+	otus <- rownames(o.t);
 	n.otu <- length(otus);
 	########################
 	#Preallocate blocks for parallel processing & Aitchinson's T matrix
