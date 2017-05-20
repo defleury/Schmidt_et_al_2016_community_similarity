@@ -466,7 +466,7 @@ for (t in seq(start.t, length(get.cs))) {
 	if (get.cs[[t]]$name %in% c("TINA, unweighted", "TINA, weighted")) {
 		curr.cs <- community.similarity.corr.par(ot, S=S.sparcc, distance=get.cs[[t]]$call, blocksize=1000, use.cores=PARAM$use.cores)
 	} else if (get.cs[[t]]$name %in% c("PINA, unweighted", "PINA, weighted")) {
-		curr.cs <- community.similarity.corr.par(ot, S=S.sparcc, distance=get.cs[[t]]$call, blocksize=1000, use.cores=PARAM$use.cores)
+		curr.cs <- community.similarity.corr.par(ot, S=S.phylo, distance=get.cs[[t]]$call, blocksize=1000, use.cores=PARAM$use.cores)
 	}
 	
 	#Correct for rounding errors
