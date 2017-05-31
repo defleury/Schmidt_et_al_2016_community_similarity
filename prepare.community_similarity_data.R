@@ -43,15 +43,15 @@ library("RColorBrewer")
 ################################################################################
 #Preallocate global data structures
 PARAM <- list();
-PARAM$folder.input <- #PUT INPUT FOLDER HERE
-PARAM$folder.data <- #PUT DATA FOLDER HERE
+PARAM$folder.input <- getwd();
+PARAM$folder.data <- "data/"
 PARAM$folder.output <- #PUT RESULTS/OUTPUT FOLDER HERE
-PARAM$file.functions <- #PUT FUNCTIONS TO SOURCE HERE ("funtions.communtiy_similarity.R")
-PARAM$file.sample_list <- #PUT RAW LIST OF SAMPLES FILE HERE
-PARAM$file.sample_metadata <- #PUT RAW SAMPLE METADATA FILE HERE
-PARAM$file.otu_table <- #PUT OTU TABLE FILE HERE
-PARAM$file.tree <- #PUT OTU PHYLO TREE FILE HERE
-PARAM$file.otu_data <- #PUT OTU DATA FILE HERE
+PARAM$file.functions <- "functions.community_similarity.R"
+PARAM$file.sample_list <- "data/sample_list.v35.filtered"
+PARAM$file.sample_metadata <- "data/sample_data.raw.tsv"
+PARAM$file.otu_table <- "data/v35.nonchimeric.filtered.aligned.global.denoised.hpc_clust.0_97.r.otu_table.tsv.gz"
+PARAM$file.tree <- "data/v35.nonchimeric.filtered.aligned.global.denoised.hpc_clust.0_97.tree"
+PARAM$file.otu_data <- "data/v35.nonchimeric.filtered.aligned.global.denoised.hpc_clust.0_97.r.otu_data.tsv.gz"
 PARAM$cor.use <- "na.or.complete";
 PARAM$p.adjust.method <- "hochberg";
 PARAM$sample.steps <- c(0.01, 0.02, 0.05, 0.1, 0.15, seq(0.2, 0.9, by=0.1));
