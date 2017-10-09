@@ -524,7 +524,9 @@ community.similarity.corr.par <- function(o.t, S, distance="jaccard.corr.uw", bl
 	########################
 	
 	#Return
-	do.call("rbind", cs.list)
+	return.mat <- do.call("rbind", cs.list)
+	rownames(return.mat) <- colnames(return.mat) <- samples
+	return.mat
 }
 ########################
 ################################################################################
