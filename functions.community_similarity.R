@@ -482,7 +482,7 @@ community.similarity.corr.par <- function(o.t, S, distance="jaccard.corr.uw", bl
 	#=> this is for unweighted TINA/PINA
 	if (distance == "jaccard.corr.uw.norm") {
 		#Pre-calculate sample-wise interaction term sums (normalized by number of OTUs per sample)
-		smpl.colsums <- mclapply(ot.occ.list, function(a.list) {colSums(S[a.list, ]) / length(a.list)}, mc.cores=use.cores);
+		smpl.colsums <- mclapply(ot.occ.list, function(a.list) {colSums(matrix(S[a.list, ])) / length(a.list)}, mc.cores=use.cores);
 		names(smpl.colsums) <- samples;
 		#Pre-calculate sample self-comparisons
 		smpl.self <- unlist(lapply(samples, function(a) {a.list <- ot.occ.list[[a]]; sum(smpl.colsums[[a]][a.list]) / length(a.list)}));
